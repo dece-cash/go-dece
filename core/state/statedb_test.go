@@ -20,6 +20,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"github.com/dece-cash/go-dece/czero/cpt"
 	"math"
 	"math/big"
 	"math/rand"
@@ -28,12 +29,12 @@ import (
 	"testing"
 	"testing/quick"
 
-	"github.com/dece-cash/go-dece/czero/c_czero"
-	"gopkg.in/check.v1"
+
 
 	"github.com/dece-cash/go-dece/common"
 	"github.com/dece-cash/go-dece/core/types"
 	"github.com/dece-cash/go-dece/decedb"
+	checker "gopkg.in/check.v1"
 )
 
 // Tests that updating a state trie does not leak any database writes prior to
@@ -167,7 +168,7 @@ func TestCopy(t *testing.T) {
 }
 
 func TestSnapshotRandom(t *testing.T) {
-	cpt.ZeroInit("", c_czero.NET_Alpha)
+	// cpt.ZeroInit("", c_czero.NET_Alpha)
 	config := &quick.Config{MaxCount: 1000}
 	err := quick.Check((*snapshotTest).run, config)
 	if cerr, ok := err.(*quick.CheckError); ok {

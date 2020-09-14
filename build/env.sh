@@ -6,14 +6,30 @@ if [ ! -f "build/env.sh" ]; then
     exit 2
 fi
 
+
+root="$PWD"
+
 # Create fake Go workspace if it doesn't exist yet.
 workspace="$PWD/build/_workspace"
-root="$PWD"
-DECE_PATH="$PWD"
-CZERO_PATH="$root/czero"
-echo $CZERO_PATH
-_GOPATH=`cd ../../../../;pwd`
-echo $_GOPATH
+
+godir="$workspace/src/github.com/dece-cash/go-dece"
+
+CZERO_PATH="$godir/czero"
+
+#rm -rf "$workspace"
+
+go mod vendor
+
+
+mkdir -p "$godir"
+##
+cp -R ` find .   \( -path "./build" -o -path "./.git" -o -path "./tests" -o -path "./Makefile" -o -path "./.idea" -o -path "./go.sum" -o -path "./README.md"  -o -path "./go.mod" -o -path "./makepkg.sh" -o -path "./maketxpkg.sh"  \) -prune -o -type d -depth 1 -print ` "$godir"
+
+cp -R interfaces.go "$godir"
+
+GOPATH="$workspace"
+
+export GOPATH
 
 cd "$root"
 args=()
@@ -103,12 +119,6 @@ elif [ $1 == "windows-amd64" ];then
 else
      echo "local"
 fi
-
-
-
-# Set up the environment to use the workspace.
-GOPATH="$_GOPATH"
-export GOPATH
 
 
 # Run the command inside the workspace.
