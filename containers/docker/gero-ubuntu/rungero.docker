@@ -1,0 +1,6 @@
+#!/bin/bash
+mkdir -p /log
+current=`date "+%Y-%m-%d"`
+logName="gece_$current.log"
+
+/gece --config /usr/local/bin/geceConfig.toml --datadir /root/.dece  --rpccorsdomain "*" --confirmedBlock 32 --rpcwritetimeout 1800 --exchangeValueStr --port 53717 --rpc --rpcaddr "0.0.0.0" -rpcapi "dece,net,exchange,stake" --rpcport 8545 --exchange --mineMode  $@ 2>> /log/${logName}
