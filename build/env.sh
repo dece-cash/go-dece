@@ -23,10 +23,10 @@ go mod vendor
 
 mkdir -p "$godir"
 ##
-cp -R ` find .   \( -path "./build" -o -path "./.git" -o -path "./tests" -o -path "./Makefile" -o -path "./.idea" -o -path "./go.sum" -o -path "./README.md"  -o -path "./go.mod" -o -path "./makepkg.sh" -o -path "./maketxpkg.sh"  \) -prune -o -type d -depth 1 -print ` "$godir"
+#cp -R ` find .   \( -path "./build" -o -path "./.git" -o -path "./tests" -o -path "./Makefile" -o -path "./.idea" -o -path "./go.sum" -o -path "./README.md"  -o -path "./go.mod" -o -path "./makepkg.sh" -o -path "./maketxpkg.sh"  \) -prune -o -type d -depth 1 -print ` "$godir"
 
-cp -R interfaces.go "$godir"
-
+#cp -R interfaces.go "$godir"
+#
 GOPATH="$workspace"
 
 export GOPATH
@@ -68,17 +68,29 @@ function sysname() {
 }
 
 SNAME=`sysname`
-
+echo $CZERO_PATH $SNAME
 if [ "Darwin" == "$SNAME" ]
 then
+    rm -rf $CZERO_PATH/lib/lib/*
+    cd "$CZERO_PATH/lib/"
+    cp -rf lib_DARWIN_AMD64/* lib/
+
     DYLD_LIBRARY_PATH="$CZERO_PATH/lib/lib_DARWIN_AMD64"
     export DYLD_LIBRARY_PATH
 elif [ "Linux-V3" == "$SNAME" ]
 then
+   rm -rf $CZERO_PATH/lib/lib/*
+   cd "$CZERO_PATH/lib/"
+   cp -rf lib_LINUX_AMD64_V3/* lib/
+
    LD_LIBRARY_PATH="$CZERO_PATH/lib/lib_LINUX_AMD64_V3"
+   echo $LD_LIBRARY_PATH
    export LD_LIBRARY_PATH
 elif [ "Linux-V4" == "$SNAME" ]
 then
+    rm -rf $CZERO_PATH/lib/lib/*
+    cd "$CZERO_PATH/lib/"
+    cp -rf lib_LINUX_AMD64_V4/* lib/
     LD_LIBRARY_PATH="$CZERO_PATH/lib/lib_LINUX_AMD64_V4"
     export LD_LIBRARY_PATH
 elif [ "$SNAME" == "Linux-*" ]

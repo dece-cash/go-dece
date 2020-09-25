@@ -70,7 +70,7 @@ func (self *LightNode) getLastNumber() (num uint64) {
 
 	if self.lastNumber == 0 {
 		// light wallet start at block 1200000
-		var initBlockNum = uint64(1280000)
+		var initBlockNum = uint64(0)
 		if deceparam.Is_Dev() {
 			initBlockNum = uint64(0)
 		}
