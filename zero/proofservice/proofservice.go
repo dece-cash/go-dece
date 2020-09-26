@@ -91,7 +91,7 @@ func (storage *MapStorage) Exists(hash common.Hash) bool {
 }
 
 func (storage *MapStorage) Save(job *Job) {
-	hash := job.tx.Tx.Tx1_Hash()
+	hash := job.tx.Tx1.Tx1_Hash()
 	storage.cache[common.BytesToHash(hash[:])] = job
 }
 

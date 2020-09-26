@@ -215,12 +215,12 @@ func (s *PublicExchangeAPI) GetTx(ctx context.Context, txHash c_type.Uint256) (m
 
 	ins := []c_type.Uint256{}
 
-	for _, in := range tx.Stxt().Tx.Ins_C {
+	for _, in := range tx.Stxt().Tx1.Ins_C {
 		if root := exchange.CurrentExchange().GetRootByNil(in.Nil); root != nil {
 			ins = append(ins, *root)
 		}
 	}
-	for _, in := range tx.Stxt().Tx.Ins_P {
+	for _, in := range tx.Stxt().Tx1.Ins_P {
 		ins = append(ins, in.Root)
 	}
 

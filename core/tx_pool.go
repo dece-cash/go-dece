@@ -154,7 +154,7 @@ func TxToOut(tx types.Transaction) (result []txtool.Out, txHash c_type.Uint256) 
 	copy(txHash[:], txCommonHash[:])
 	ztxs := tx.GetZZSTX()
 	if ztxs != nil {
-		tx1 := tx.GetZZSTX().Tx
+		tx1 := tx.GetZZSTX().Tx1
 		for index := range tx1.Outs_P {
 			out := txtool.Out{}
 			rootState := localdb.RootState{}

@@ -222,8 +222,8 @@ func (state *State) AddStx(st *stx.T) (e error) {
 	defer state.rw.Unlock()
 	txhash := st.ToHash()
 
-	if st.Tx.Count() > 0 {
-		return state.addTx1(&st.Tx, &txhash)
+	if st.Tx1.Count() > 0 {
+		return state.addTx1(&st.Tx1, &txhash)
 	}
 
 	return

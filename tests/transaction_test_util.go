@@ -97,7 +97,7 @@ func (tt *TransactionTest) Run(config *params.ChainConfig) error {
 
 func (tt *ttTransaction) verify(tx *types.Transaction) error {
 	if !bytes.Equal(tx.Data(), tt.Data) {
-		return fmt.Errorf("Tx input data mismatch: got %x want %x", tx.Data(), tt.Data)
+		return fmt.Errorf("Tx1 input data mismatch: got %x want %x", tx.Data(), tt.Data)
 	}
 	if tx.Gas() != tt.GasLimit {
 		return fmt.Errorf("GasLimit mismatch: got %d, want %d", tx.Gas(), tt.GasLimit)

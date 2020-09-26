@@ -14,6 +14,6 @@ func CheckUint(i *utils.U256) bool {
 }
 func ReportError(str string, tx *stx.T) (e error) {
 	h := hexutil.Encode(tx.ToHash().NewRef()[:])
-	log.Error("Verify Tx Error", "reason", str, "hash", h)
-	return fmt.Errorf("Verify Tx Error: resean=%v , hash=%v", str, h)
+	log.Error("Verify Tx1 Error", "reason", str, "hash", h)
+	return fmt.Errorf("Verify Tx1 Error: resean=%v , hash=%v", str, h)
 }

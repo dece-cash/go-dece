@@ -106,7 +106,7 @@ func (self *verifyWithStateCtx) verifyCmd() (e error) {
 }
 
 func (self *verifyWithStateCtx) verifyInsP() (e error) {
-	for _, in := range self.tx.Tx.Ins_P {
+	for _, in := range self.tx.Tx1.Ins_P {
 		if !zconfig.IsValidRoot(in.Root) {
 			e = verify_utils.ReportError("txs.verify p_in already in nils-roots", self.tx)
 			return
@@ -180,7 +180,7 @@ func (self *verifyWithStateCtx) verifyInsP() (e error) {
 }
 
 func (self *verifyWithStateCtx) verifyInsC() (e error) {
-	for _, in := range self.tx.Tx.Ins_C {
+	for _, in := range self.tx.Tx1.Ins_C {
 		self.balance_desc.Zin_acms = append(self.balance_desc.Zin_acms, in.AssetCM[:]...)
 		if ok := self.state.State.HasIn(&in.Nil); ok {
 			e = verify_utils.ReportError("txs.verify in already in nils", self.tx)
@@ -196,7 +196,7 @@ func (self *verifyWithStateCtx) verifyInsC() (e error) {
 }
 
 func (self *verifyWithStateCtx) verifyOutP() (e error) {
-	for _, out := range self.tx.Tx.Outs_P {
+	for _, out := range self.tx.Tx1.Outs_P {
 		self.ck.AddOut(&out.Asset)
 		cc := out.ToAssetCC_Szk()
 		self.balance_desc.Oout_accs = append(self.balance_desc.Oout_accs, cc[:]...)
@@ -205,7 +205,7 @@ func (self *verifyWithStateCtx) verifyOutP() (e error) {
 }
 
 func (self *verifyWithStateCtx) verifyOutC() (e error) {
-	for _, out := range self.tx.Tx.Outs_C {
+	for _, out := range self.tx.Tx1.Outs_C {
 		self.balance_desc.Zout_acms = append(self.balance_desc.Zout_acms, out.AssetCM[:]...)
 	}
 	return
@@ -248,7 +248,7 @@ func (self *verifyWithStateCtx) verify() (e error) {
 	if e = self.verifyCmd(); e != nil {
 		return
 	}
-	if self.tx.Tx.Count() > 0 {
+	if self.tx.Tx1.Count() > 0 {
 		if e = self.verifyInsP(); e != nil {
 			return
 		}

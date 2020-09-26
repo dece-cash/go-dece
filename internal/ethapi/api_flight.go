@@ -174,13 +174,13 @@ func (s *PublicFlightAPI) GetTxReceipt(ctx context.Context, txhash c_type.Uint25
 		}
 	}
 
-	if tx.GetZZSTX().Tx.Count() > 0 {
+	if tx.GetZZSTX().Tx1.Count() > 0 {
 
-		for _, oin := range tx.GetZZSTX().Tx.Ins_P {
+		for _, oin := range tx.GetZZSTX().Tx1.Ins_P {
 			ret.Nils = append(ret.Nils, oin.Nil)
 		}
 
-		for _, oin := range tx.GetZZSTX().Tx.Ins_C {
+		for _, oin := range tx.GetZZSTX().Tx1.Ins_C {
 			ret.Nils = append(ret.Nils, oin.Nil)
 		}
 	}

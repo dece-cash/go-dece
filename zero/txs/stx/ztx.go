@@ -39,7 +39,7 @@ type T struct {
 	Bsign    c_type.Uint512
 	Desc_Pkg PkgDesc_Z
 	Desc_Cmd DescCmd
-	Tx       tx.Tx
+	Tx1      tx.Tx
 
 	// cache
 	hash      atomic.Value
@@ -91,8 +91,8 @@ func (self *T) _ToHash() (ret c_type.Uint256) {
 	d.Write(self.Ehash[:])
 	d.Write(self.From[:])
 	d.Write(self.Fee.ToHash().NewRef()[:])
-	if self.Tx.Count() > 0 {
-		d.Write(self.Tx.ToHash().NewRef()[:])
+	if self.Tx1.Count() > 0 {
+		d.Write(self.Tx1.ToHash().NewRef()[:])
 	}
 	d.Write(self.Desc_Pkg.ToHash().NewRef()[:])
 	d.Write(self.Sign[:])

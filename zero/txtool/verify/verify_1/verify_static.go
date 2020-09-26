@@ -136,12 +136,12 @@ func (self *verifyWithoutStateCtx) verifyCmd() (e error) {
 }
 
 func (self *verifyWithoutStateCtx) verifyInsP() (e error) {
-	self.oin_count += len(self.tx.Tx.Ins_P)
+	self.oin_count += len(self.tx.Tx1.Ins_P)
 	return
 }
 
 func (self *verifyWithoutStateCtx) verifyInsC() (e error) {
-	for _, in := range self.tx.Tx.Ins_C {
+	for _, in := range self.tx.Tx1.Ins_C {
 		if !c_superzk.VerifyZPKa(&self.hash, &in.Sign, &in.ZPKa) {
 			e = verify_utils.ReportError("c_out zpka verify invalid", self.tx)
 			return
@@ -152,7 +152,7 @@ func (self *verifyWithoutStateCtx) verifyInsC() (e error) {
 }
 
 func (self *verifyWithoutStateCtx) verifyOutP() (e error) {
-	for i, out := range self.tx.Tx.Outs_P {
+	for i, out := range self.tx.Tx1.Outs_P {
 		self.oout_count++
 		if !superzk.IsPKrValid(&out.PKr) {
 			e = verify_utils.ReportError("p_out pkr invalid", self.tx)
@@ -164,13 +164,13 @@ func (self *verifyWithoutStateCtx) verifyOutP() (e error) {
 				return
 			}
 		}
-		self.tx.Tx.Outs_P[i].ToAssetCC_Szk()
+		self.tx.Tx1.Outs_P[i].ToAssetCC_Szk()
 	}
 	return
 }
 
 func (self *verifyWithoutStateCtx) verifyOutC() (e error) {
-	for _, out := range self.tx.Tx.Outs_C {
+	for _, out := range self.tx.Tx1.Outs_C {
 		self.zout_count++
 		if !c_superzk.IsPKrValid(&out.PKr) {
 			e = verify_utils.ReportError("c_out pkr invalid", self.tx)
@@ -206,7 +206,7 @@ func (self *verifyWithoutStateCtx) verify() (e error) {
 	if e = self.verifyCmd(); e != nil {
 		return
 	}
-	if self.tx.Tx.Count() > 0 {
+	if self.tx.Tx1.Count() > 0 {
 		if e = self.verifyInsP(); e != nil {
 			return
 		}

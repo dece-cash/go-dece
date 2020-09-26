@@ -190,7 +190,7 @@ func (self *LightNode) fetchBlockInfo() {
 			txReceipt, _, _, _ := rawdb.ReadReceipt(self.bcDB, tx.Hash())
 			gasUsed := txReceipt.GasUsed
 
-			// Index Tx Info
+			// Index Tx1 Info
 			txInfo := TxInfo{
 				Num:       blockNum,
 				TxHash:    txHash,
@@ -212,13 +212,13 @@ func (self *LightNode) fetchBlockInfo() {
 				return
 			} else {
 
-				if tx.Stxt().Tx.Ins_C != nil {
-					for _, in := range tx.Stxt().Tx.Ins_C {
+				if tx.Stxt().Tx1.Ins_C != nil {
+					for _, in := range tx.Stxt().Tx1.Ins_C {
 						batch.Put(nilKey(in.Nil), nilValue)
 					}
 				}
-				if tx.Stxt().Tx.Ins_P != nil {
-					for _, in := range tx.Stxt().Tx.Ins_P {
+				if tx.Stxt().Tx1.Ins_P != nil {
+					for _, in := range tx.Stxt().Tx1.Ins_P {
 						batch.Put(nilKey(in.Nil), nilValue)
 						batch.Put(nilKey(in.Root), nilValue)
 					}

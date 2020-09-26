@@ -58,7 +58,7 @@ func (self *prove_ctx) prove() (e error) {
 	for i, out := range self.c_outs {
 
 		g := gen_output_desc{}
-		g.asset_cm = self.tx.Tx.Outs_C[i].AssetCM
+		g.asset_cm = self.tx.Tx1.Outs_C[i].AssetCM
 		g.ar = *out.Ar
 		g.asset = out.Asset.ToTypeAsset()
 		g.index = i
@@ -73,7 +73,7 @@ func (self *prove_ctx) prove() (e error) {
 	var gen_input_procs = gen_input_procs_pool.GetProcs()
 	defer gen_input_procs_pool.PutProcs(gen_input_procs)
 	for i, in := range self.c_ins {
-		t_in := self.tx.Tx.Ins_C[i]
+		t_in := self.tx.Tx1.Ins_C[i]
 		g := gen_input_desc{}
 		g.asset_cm_new = t_in.AssetCM
 		g.zpka = t_in.ZPKa
@@ -110,7 +110,7 @@ func (self *prove_ctx) prove() (e error) {
 		if e = gen_output_procs.End(); e == nil {
 			for _, g := range gen_output_procs.Runs {
 				output_desc := g.(*gen_output_desc)
-				self.tx.Tx.Outs_C[output_desc.index].Proof = output_desc.proof
+				self.tx.Tx1.Outs_C[output_desc.index].Proof = output_desc.proof
 			}
 		} else {
 			return
@@ -121,7 +121,7 @@ func (self *prove_ctx) prove() (e error) {
 		if e = gen_input_procs.End(); e == nil {
 			for i, g := range gen_input_procs.Runs {
 				input_desc := g.(*gen_input_desc)
-				self.tx.Tx.Ins_C[i].Proof = input_desc.proof
+				self.tx.Tx1.Ins_C[i].Proof = input_desc.proof
 			}
 		} else {
 			return

@@ -274,7 +274,7 @@ func (self *sign_ctx) genInsP() (e error) {
 		} else {
 			self.ck.AddIn(&asset_desc)
 			self.balance_desc.Oin_accs = append(self.balance_desc.Oin_accs, cc[:]...)
-			self.s.Tx.Ins_P = append(self.s.Tx.Ins_P, t_in)
+			self.s.Tx1.Ins_P = append(self.s.Tx1.Ins_P, t_in)
 		}
 	}
 	return
@@ -326,7 +326,7 @@ func (self *sign_ctx) genInsC() (e error) {
 
 		self.balance_desc.Zin_acms = append(self.balance_desc.Zin_acms, t_in.AssetCM[:]...)
 		self.balance_desc.Zin_ars = append(self.balance_desc.Zin_ars, in.Ar[:]...)
-		self.s.Tx.Ins_C = append(self.s.Tx.Ins_C, t_in)
+		self.s.Tx1.Ins_C = append(self.s.Tx1.Ins_C, t_in)
 
 		baser := c_superzk.ClearPKr(in.Out.State.OS.ToPKr()).BASEr()
 		self.bases = append(self.bases, baser)
@@ -358,7 +358,7 @@ func (self *sign_ctx) genOutsC() (e error) {
 
 		self.balance_desc.Zout_acms = append(self.balance_desc.Zout_acms, t_out.AssetCM[:]...)
 		self.balance_desc.Zout_ars = append(self.balance_desc.Zout_ars, out.Ar[:]...)
-		self.s.Tx.Outs_C = append(self.s.Tx.Outs_C, t_out)
+		self.s.Tx1.Outs_C = append(self.s.Tx1.Outs_C, t_out)
 		self.keys = append(self.keys, key)
 	}
 	return
@@ -377,7 +377,7 @@ func (self *sign_ctx) genOutsP() (e error) {
 		} else {
 			self.ck.AddOut(&out.Asset)
 			self.balance_desc.Oout_accs = append(self.balance_desc.Oout_accs, cc[:]...)
-			self.s.Tx.Outs_P = append(self.s.Tx.Outs_P, t_out)
+			self.s.Tx1.Outs_P = append(self.s.Tx1.Outs_P, t_out)
 		}
 	}
 	return
@@ -416,12 +416,12 @@ func (self *sign_ctx) signFrom() (e error) {
 }
 
 func (self *sign_ctx) signInsP() (e error) {
-	for i := range self.s.Tx.Ins_P {
+	for i := range self.s.Tx1.Ins_P {
 		t_in := self.p_ins[i]
 		if sign, err := c_superzk.SignPKr_P(t_in.SKr.ToUint512().NewRef(), &self.balance_desc.Hash, t_in.Out.State.OS.ToPKr()); err != nil {
 			return err
 		} else {
-			self.s.Tx.Ins_P[i].ASign = sign
+			self.s.Tx1.Ins_P[i].ASign = sign
 		}
 		tk, _ := superzk.Sk2Tk(t_in.SKr.ToUint512().NewRef())
 		if sign, err := c_superzk.SignNil(
@@ -433,19 +433,19 @@ func (self *sign_ctx) signInsP() (e error) {
 			e = err
 			return
 		} else {
-			self.s.Tx.Ins_P[i].NSign = sign
+			self.s.Tx1.Ins_P[i].NSign = sign
 		}
 	}
 	return
 }
 func (self *sign_ctx) signInsC() (e error) {
-	for i := range self.s.Tx.Ins_C {
+	for i := range self.s.Tx1.Ins_C {
 		t_in := self.c_ins[i]
 		if sign, err := c_superzk.SignZPKa(t_in.SKr.ToUint512().NewRef(), &self.balance_desc.Hash, t_in.A, t_in.Out.State.OS.ToPKr()); err != nil {
 			e = err
 			return
 		} else {
-			self.s.Tx.Ins_C[i].Sign = sign
+			self.s.Tx1.Ins_C[i].Sign = sign
 		}
 	}
 	return

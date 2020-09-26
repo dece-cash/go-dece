@@ -1,7 +1,7 @@
 package verify_1
 
 func (self *verifyWithoutStateCtx) ProcessVerifyProof() {
-	for _, in := range self.tx.Tx.Ins_C {
+	for _, in := range self.tx.Tx1.Ins_C {
 		g := verify_input_desc{}
 		g.anchor = in.Anchor
 		g.proof = in.Proof
@@ -10,7 +10,7 @@ func (self *verifyWithoutStateCtx) ProcessVerifyProof() {
 		g.asset_cm_new = in.AssetCM
 		self.cin_proof_proc.StartProc(&g)
 	}
-	for _, out := range self.tx.Tx.Outs_C {
+	for _, out := range self.tx.Tx1.Outs_C {
 		g := verify_output_desc{}
 		g.proof = out.Proof
 		g.asset_cm = out.AssetCM
