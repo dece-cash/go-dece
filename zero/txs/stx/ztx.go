@@ -17,6 +17,7 @@
 package stx
 
 import (
+	"github.com/dece-cash/go-dece/zero/txs/stx/stx_v0"
 	"sync/atomic"
 
 	"github.com/dece-cash/go-dece/czero/c_superzk"
@@ -37,6 +38,8 @@ type T struct {
 	Sign     c_type.Uint512
 	Bcr      c_type.Uint256
 	Bsign    c_type.Uint512
+	Desc_O   stx_v0.Desc_O
+	Desc_Z   stx_v0.Desc_Z
 	Desc_Pkg PkgDesc_Z
 	Desc_Cmd DescCmd
 	Tx1      tx.Tx
@@ -91,6 +94,8 @@ func (self *T) _ToHash() (ret c_type.Uint256) {
 	d.Write(self.Ehash[:])
 	d.Write(self.From[:])
 	d.Write(self.Fee.ToHash().NewRef()[:])
+	d.Write(self.Desc_Z.ToHash().NewRef()[:])
+	d.Write(self.Desc_O.ToHash().NewRef()[:])
 	if self.Tx1.Count() > 0 {
 		d.Write(self.Tx1.ToHash().NewRef()[:])
 	}
@@ -110,6 +115,8 @@ func (self *T) ToHash_for_gen() (ret c_type.Uint256) {
 	d.Write(self.Ehash[:])
 	d.Write(self.From[:])
 	d.Write(self.Fee.ToHash().NewRef()[:])
+	d.Write(self.Desc_Z.ToHash_for_gen().NewRef()[:])
+	d.Write(self.Desc_O.ToHash_for_gen().NewRef()[:])
 	d.Write(self.Desc_Pkg.ToHash_for_gen().NewRef()[:])
 	if self.Desc_Cmd.Count() > 0 {
 		d.Write(self.Desc_Cmd.ToHash().NewRef()[:])
@@ -123,6 +130,8 @@ func (self *T) ToHash_for_sign() (ret c_type.Uint256) {
 	d.Write(self.Ehash[:])
 	d.Write(self.From[:])
 	d.Write(self.Fee.ToHash().NewRef()[:])
+	d.Write(self.Desc_Z.ToHash_for_sign().NewRef()[:])
+	d.Write(self.Desc_O.ToHash_for_sign().NewRef()[:])
 	d.Write(self.Desc_Pkg.ToHash_for_sign().NewRef()[:])
 	if self.Desc_Cmd.Count() > 0 {
 		d.Write(self.Desc_Cmd.ToHash().NewRef()[:])
