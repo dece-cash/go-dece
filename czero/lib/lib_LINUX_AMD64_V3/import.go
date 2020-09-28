@@ -1,1 +1,1 @@
-package lib_LINUX_AMD64_V3
+package lib

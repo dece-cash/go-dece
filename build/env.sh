@@ -12,16 +12,24 @@ root="$PWD"
 # Create fake Go workspace if it doesn't exist yet.
 workspace="$PWD/build/_workspace"
 
-godir="$workspace/src/github.com/dece-cash/go-dece"
+godir="$workspace/src/github.com/dece-cash"
 
-CZERO_PATH="$godir/czero"
+CZERO_PATH="$godir/go-dece/czero"
 
 #rm -rf "$workspace"
 
 go mod vendor
 
 
-mkdir -p "$godir"
+root="$PWD"
+if [ ! -L "$godir/go-dece" ]; then
+    mkdir -p "$godir"
+    cd "$godir"
+    ln -s ../../../../../. go-dece
+    cd "$root"
+fi
+
+
 ##
 #cp -R ` find .   \( -path "./build" -o -path "./.git" -o -path "./tests" -o -path "./Makefile" -o -path "./.idea" -o -path "./go.sum" -o -path "./README.md"  -o -path "./go.mod" -o -path "./makepkg.sh" -o -path "./maketxpkg.sh"  \) -prune -o -type d -depth 1 -print ` "$godir"
 
@@ -109,23 +117,23 @@ fi
 cd "$root"
 
 if [ $1 == "linux-v3" ]; then
-    cd "$CZERO_PATH"
+    cd "$CZERO_PATH/lib"
     cp -rf lib_LINUX_AMD64_V3/* lib/
     cd "$root"
     unset args[0]
 elif [ $1 == "linux-v4" ];then
-    cd "$CZERO_PATH"
+    cd "$CZERO_PATH/lib"
     cp -rf lib_LINUX_AMD64_V4/* lib/
     cd "$root"
     unset args[0]
 elif [ $1 == "darwin-amd64" ];then
-     cd "$CZERO_PATH"
+     cd "$CZERO_PATH/lib"
      cp -rf lib_DARWIN_AMD64/* lib/
      cd "$root"
      unset args[0]
 elif [ $1 == "windows-amd64" ];then
     unset args[0]
-    cd "$CZERO_PATH"
+    cd "$CZERO_PATH/lib"
     cp -rf lib_WINDOWS_AMD64/* lib/
     cd "$root"
 else
@@ -134,8 +142,8 @@ fi
 
 
 # Run the command inside the workspace.
-cd "$DECE_PATH"
-PWD="$DECE_PATH"
+cd "$godir/go-dece"
+PWD="$godir/go-dece"
 
 #Launch the arguments with the configured environment.
 exec "${args[@]}"

@@ -51,20 +51,19 @@ import (
 	"github.com/dece-cash/go-dece/core/state"
 	"github.com/dece-cash/go-dece/core/vm"
 	"github.com/dece-cash/go-dece/crypto"
+	"github.com/dece-cash/go-dece/dece"
+	"github.com/dece-cash/go-dece/dece/downloader"
+	"github.com/dece-cash/go-dece/dece/gasprice"
+	"github.com/dece-cash/go-dece/decedb"
 	"github.com/dece-cash/go-dece/log"
 	"github.com/dece-cash/go-dece/metrics"
 	"github.com/dece-cash/go-dece/metrics/influxdb"
 	"github.com/dece-cash/go-dece/node"
 	"github.com/dece-cash/go-dece/p2p"
 	"github.com/dece-cash/go-dece/p2p/discover"
-	"github.com/dece-cash/go-dece/p2p/discv5"
 	"github.com/dece-cash/go-dece/p2p/nat"
 	"github.com/dece-cash/go-dece/p2p/netutil"
 	"github.com/dece-cash/go-dece/params"
-	"github.com/dece-cash/go-dece/dece"
-	"github.com/dece-cash/go-dece/dece/downloader"
-	"github.com/dece-cash/go-dece/dece/gasprice"
-	"github.com/dece-cash/go-dece/decedb"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -527,7 +526,7 @@ var (
 	ListenPortFlag = cli.IntFlag{
 		Name:  "port",
 		Usage: "Network listening port",
-		Value: 53717,
+		Value: 40404,
 	}
 	BootnodesFlag = cli.StringFlag{
 		Name:  "bootnodes",
@@ -742,35 +741,6 @@ func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 		cfg.BootstrapNodes = append(cfg.BootstrapNodes, node)
 	}
 }
-
-// setBootstrapNodesV5 creates a list of bootstrap nodes from the command line
-// flags, reverting to pre-configured ones if none have been specified.
-func setBootstrapNodesV5(ctx *cli.Context, cfg *p2p.Config) {
-	urls := params.DiscoveryV5Bootnodes
-	switch {
-	case ctx.GlobalIsSet(BootnodesFlag.Name) || ctx.GlobalIsSet(BootnodesV5Flag.Name):
-		if ctx.GlobalIsSet(BootnodesV5Flag.Name) {
-			urls = strings.Split(ctx.GlobalString(BootnodesV5Flag.Name), ",")
-		} else {
-			urls = strings.Split(ctx.GlobalString(BootnodesFlag.Name), ",")
-		}
-	case ctx.GlobalBool(DeveloperFlag.Name):
-		urls = params.DevBootnodes
-	case cfg.BootstrapNodesV5 != nil:
-		return // already set, don't apply defaults.
-	}
-
-	cfg.BootstrapNodesV5 = make([]*discv5.Node, 0, len(urls))
-	for _, url := range urls {
-		node, err := discv5.ParseNode(url)
-		if err != nil {
-			log.Error("Bootstrap URL invalid", "enode", url, "err", err)
-			continue
-		}
-		cfg.BootstrapNodesV5 = append(cfg.BootstrapNodesV5, node)
-	}
-}
-
 // setListenAddress creates a TCP listening address string from set command
 // line flags.
 func setListenAddress(ctx *cli.Context, cfg *p2p.Config) {
@@ -952,7 +922,6 @@ func SetP2PConfig(ctx *cli.Context, cfg *p2p.Config) {
 	setNAT(ctx, cfg)
 	setListenAddress(ctx, cfg)
 	setBootstrapNodes(ctx, cfg)
-	setBootstrapNodesV5(ctx, cfg)
 
 	if ctx.GlobalIsSet(MaxPeersFlag.Name) {
 		cfg.MaxPeers = ctx.GlobalInt(MaxPeersFlag.Name)

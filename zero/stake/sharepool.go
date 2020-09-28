@@ -1106,7 +1106,7 @@ func (self *StakeState) processOutDate(header *types.Header, bc blockChain) (err
 					return
 				}
 				if share.Num != sndoe.num {
-					err = errors.New(fmt.Sprint("ProcessBeforeApply: processOutDate err", " share.num=", share.Num, " snode.num=", sndoe.num))
+					err = errors.New(fmt.Sprint("ProcessBeforeApply: processOutDate err", " share.num=", share.Num, " dece.num=", sndoe.num))
 					return
 				}
 

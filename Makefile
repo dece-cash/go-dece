@@ -11,13 +11,14 @@
 GOBIN = $(shell pwd)/build/bin
 root=$(shell pwd)
 GO ?= latest
+GORUN = env GO111MODULE=on go run
 
 PKG = ./...
 
-gero:
-	build/env.sh go run build/ci.go install ./cmd/gero
+gece:
+	build/env.sh go run build/ci.go install ./cmd/gece
 	@echo "Done building."
-	@echo "Run \"$(GOBIN)/gero\" to launch gero."
+	@echo "Run \"$(GOBIN)/gece\" to launch gece."
 
 swarm:
 	build/env.sh go run build/ci.go install ./cmd/swarm
@@ -52,61 +53,61 @@ devtools:
 
 # Cross Compilation Targets (xgo)
 
-gero-cross: gero-linux gero-darwin gero-windows
+gece-cross: gece-linux gece-darwin gece-windows
 	@echo "Full cross compilation done:"
-	@ls -ld $(GOBIN)/gero-*
+	@ls -ld $(GOBIN)/gece-*
 
-gero-linux: gero-linux-amd640-v3 gero-linux-amd64-v4
+gece-linux: gece-linux-amd640-v3 gece-linux-amd64-v4
 	@echo "Linux cross compilation done:"
-	@ls -ld $(GOBIN)/gero-linux-*
+	@ls -ld $(GOBIN)/gece-linux-*
 
-gero-linux-amd64-v3:
-	build/env.sh linux-v3 go run build/ci.go xgo -- --go=$(GO) --out=gero-v3 --targets=linux/amd64 -v ./cmd/gero
+gece-linux-amd64-v3:
+	build/env.sh linux-v3 go run build/ci.go xgo -- --go=$(GO) --out=gece-v3 --targets=linux/amd64 -v ./cmd/gece
 	#build/env.sh linux-v3 go run build/ci.go xgo -- --go=$(GO) --out=bootnode-v3 --targets=linux/amd64 -v ./cmd/bootnode
 	@echo "Linux centos amd64 cross compilation done:"
-	@ls -ld $(GOBIN)/gero-v3-linux-* | grep amd64
+	@ls -ld $(GOBIN)/gece-v3-linux-* | grep amd64
 
-gero-linux-amd64-v4:
-	build/env.sh linux-v4 go run build/ci.go xgo -- --go=$(GO) --out=gero-v4 --targets=linux/amd64 -v ./cmd/gero
+gece-linux-amd64-v4:
+	build/env.sh linux-v4 go run build/ci.go xgo -- --go=$(GO) --out=gece-v4 --targets=linux/amd64 -v ./cmd/gece
 	#build/env.sh linux-v3 go run build/ci.go xgo -- --go=$(GO) --out=bootnode-v4 --targets=linux/amd64 -v ./cmd/bootnode
 	@echo "Linux  ubuntu amd64 cross compilation done:"
-	@ls -ld $(GOBIN)/gero-v4-linux-* | grep amd64
+	@ls -ld $(GOBIN)/gece-v4-linux-* | grep amd64
 
-gero-darwin: gero-darwin-amd64
+gece-darwin: gece-darwin-amd64
 	@echo "Darwin cross compilation done:"
-	@ls -ld $(GOBIN)/gero-darwin-*
+	@ls -ld $(GOBIN)/gece-darwin-*
 
 
-gero-darwin-amd64:
-	build/env.sh darwin-amd64 go run build/ci.go xgo -- --go=$(GO) --targets=darwin/amd64 -v ./cmd/gero
+gece-darwin-amd64:
+	build/env.sh darwin-amd64 go run build/ci.go xgo -- --go=$(GO) --targets=darwin/amd64 -v ./cmd/gece
 	@echo "Darwin amd64 cross compilation done:"
-	@ls -ld $(GOBIN)/gero-darwin-* | grep amd64
+	@ls -ld $(GOBIN)/gece-darwin-* | grep amd64
 
-gero-windows: gero-windows-amd64
+gece-windows: gece-windows-amd64
 	@echo "Windows cross compilation done:"
-	@ls -ld $(GOBIN)/gero-windows-*
+	@ls -ld $(GOBIN)/gece-windows-*
 
-gero-windows-amd64:
-	build/env.sh windows-amd64 go run build/ci.go xgo -- --go=$(GO)  --targets=windows/amd64 -v ./cmd/gero
+gece-windows-amd64:
+	build/env.sh windows-amd64 go run build/ci.go xgo -- --go=$(GO)  --targets=windows/amd64 -v ./cmd/gece
 	@echo "Windows amd64 cross compilation done:"
-	@ls -ld $(GOBIN)/gero-windows-* | grep amd64
+	@ls -ld $(GOBIN)/gece-windows-* | grep amd64
 
-gerotx-darwin-amd64:
-	build/env.sh darwin-amd64 go run build/ci.go xgo -- --go=$(GO) --out=gerotx  --targets=darwin/amd64 -v ./cmd/tx
+gecetx-darwin-amd64:
+	build/env.sh darwin-amd64 go run build/ci.go xgo -- --go=$(GO) --out=gecetx  --targets=darwin/amd64 -v ./cmd/tx
 	@echo "Darwin amd64 cross compilation done:"
-	@ls -ld $(GOBIN)/gerotx-darwin-* | grep amd64
+	@ls -ld $(GOBIN)/gecetx-darwin-* | grep amd64
 
-gerotx-linux-amd64-v3:
-	build/env.sh linux-v3 go run build/ci.go xgo -- --go=$(GO) --out=gerotx-v3 --targets=linux/amd64 -v ./cmd/tx
+gecetx-linux-amd64-v3:
+	build/env.sh linux-v3 go run build/ci.go xgo -- --go=$(GO) --out=gecetx-v3 --targets=linux/amd64 -v ./cmd/tx
 	@echo "Linux centos amd64 cross compilation done:"
-	@ls -ld $(GOBIN)/gerotx-v3-linux-* | grep amd64
+	@ls -ld $(GOBIN)/gecetx-v3-linux-* | grep amd64
 
-gerotx-linux-amd64-v4:
-	build/env.sh linux-v4 go run build/ci.go xgo -- --go=$(GO) --out=gerotx-v4 --targets=linux/amd64 -v ./cmd/tx
+gecetx-linux-amd64-v4:
+	build/env.sh linux-v4 go run build/ci.go xgo -- --go=$(GO) --out=gecetx-v4 --targets=linux/amd64 -v ./cmd/tx
 	@echo "Linux  ubuntu amd64 cross compilation done:"
-	@ls -ld $(GOBIN)/gerotx-v4-linux-* | grep amd64
+	@ls -ld $(GOBIN)/gecetx-v4-linux-* | grep amd64
 
-gerotx-windows-amd64:
-	build/env.sh windows-amd64 go run build/ci.go xgo -- --go=$(GO) --out=gerotx --targets=windows/amd64 -v ./cmd/tx
+gecetx-windows-amd64:
+	build/env.sh windows-amd64 go run build/ci.go xgo -- --go=$(GO) --out=gecetx --targets=windows/amd64 -v ./cmd/tx
 	@echo "Windows amd64 cross compilation done:"
-	@ls -ld $(GOBIN)/gerotx-windows-* | grep amd64
+	@ls -ld $(GOBIN)/gecetx-windows-* | grep amd64

@@ -44,7 +44,7 @@ var DefaultConfig = Config{
 	WSPort:           DefaultWSPort,
 	WSModules:        []string{"net", "web3"},
 	P2P: p2p.Config{
-		ListenAddr: ":53717",
+		ListenAddr: ":40404",
 		MaxPeers:   25,
 		NAT:        nat.Any(),
 	},
@@ -57,9 +57,9 @@ func DefaultDataDir() string {
 	home := homeDir()
 	if home != "" {
 		if runtime.GOOS == "darwin" {
-			return filepath.Join(home, "Library", "Sero")
+			return filepath.Join(home, "Library", "Dece")
 		} else if runtime.GOOS == "windows" {
-			return filepath.Join(home, "AppData", "Roaming", "Sero")
+			return filepath.Join(home, "AppData", "Roaming", "Dece")
 		} else {
 			return filepath.Join(home, ".dece")
 		}

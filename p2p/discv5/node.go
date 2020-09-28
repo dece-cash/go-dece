@@ -109,7 +109,7 @@ func (n *Node) validateComplete() error {
 // The string representation of a Node is a URL.
 // Please see ParseNode for a description of the format.
 func (n *Node) String() string {
-	u := url.URL{Scheme: "snode"}
+	u := url.URL{Scheme: "dece"}
 	if n.Incomplete() {
 		u.Host = fmt.Sprintf("%x", n.ID[:])
 	} else {
@@ -123,7 +123,7 @@ func (n *Node) String() string {
 	return u.String()
 }
 
-var incompleteNodeURL = regexp.MustCompile("(?i)^(?:snode://)?([0-9a-f]+)$")
+var incompleteNodeURL = regexp.MustCompile("(?i)^(?:dece://)?([0-9a-f]+)$")
 
 // ParseNode parses a node designator.
 //
@@ -169,8 +169,8 @@ func parseComplete(rawurl string) (*Node, error) {
 	if err != nil {
 		return nil, err
 	}
-	if u.Scheme != "snode" {
-		return nil, errors.New("invalid URL scheme, want \"snode\"")
+	if u.Scheme != "dece" {
+		return nil, errors.New("invalid URL scheme, want \"dece\"")
 	}
 	// Parse the Node ID from the user portion.
 	if u.User == nil {

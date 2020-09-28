@@ -1,1 +1,1 @@
-package lib_DARWIN_AMD64
+package lib

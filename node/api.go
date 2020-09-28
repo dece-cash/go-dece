@@ -53,7 +53,7 @@ func (api *PrivateAdminAPI) AddPeer(url string) (bool, error) {
 	// Try to add the url as a static peer and return
 	node, err := discover.ParseNode(url)
 	if err != nil {
-		return false, fmt.Errorf("invalid snode: %v", err)
+		return false, fmt.Errorf("invalid dece node: %v", err)
 	}
 	server.AddPeer(node)
 	return true, nil
@@ -69,7 +69,7 @@ func (api *PrivateAdminAPI) RemovePeer(url string) (bool, error) {
 	// Try to remove the url as a static peer and return
 	node, err := discover.ParseNode(url)
 	if err != nil {
-		return false, fmt.Errorf("invalid snode: %v", err)
+		return false, fmt.Errorf("invalid dece node : %v", err)
 	}
 	server.RemovePeer(node)
 	return true, nil
@@ -84,7 +84,7 @@ func (api *PrivateAdminAPI) AddTrustedPeer(url string) (bool, error) {
 	}
 	node, err := discover.ParseNode(url)
 	if err != nil {
-		return false, fmt.Errorf("invalid snode: %v", err)
+		return false, fmt.Errorf("invalid dece node: %v", err)
 	}
 	server.AddTrustedPeer(node)
 	return true, nil
@@ -100,7 +100,7 @@ func (api *PrivateAdminAPI) RemoveTrustedPeer(url string) (bool, error) {
 	}
 	node, err := discover.ParseNode(url)
 	if err != nil {
-		return false, fmt.Errorf("invalid snode: %v", err)
+		return false, fmt.Errorf("invalid dece node: %v", err)
 	}
 	server.RemoveTrustedPeer(node)
 	return true, nil
