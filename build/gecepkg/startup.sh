@@ -31,7 +31,7 @@ do
         esac
 done
 
-cmd="bin/gece --config ${CONFIG_PATH} --exchange --mineMode --datadir ${DATADIR_OPTION} --port ${PORT_OPTION} ${NET_OPTION} ${RPC_OPTION} ${KEYSTORE_OPTION}"
+cmd="bin/gece  --exchange --mineMode --datadir ${DATADIR_OPTION} --port ${PORT_OPTION} ${NET_OPTION} ${RPC_OPTION} ${KEYSTORE_OPTION}"
 mkdir -p $LOGDIR
 
 echo $cmd

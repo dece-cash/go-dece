@@ -63,7 +63,7 @@ gece-linux: gece-linux-amd640-v3 gece-linux-amd64-v4
 
 gece-linux-amd64-v3:
 	build/env.sh linux-v3 go run build/ci.go xgo -- --go=$(GO) --out=gece-v3 --targets=linux/amd64 -v ./cmd/gece
-	#build/env.sh linux-v3 go run build/ci.go xgo -- --go=$(GO) --out=bootnode-v3 --targets=linux/amd64 -v ./cmd/bootnode
+	build/env.sh linux-v3 go run build/ci.go xgo -- --go=$(GO) --out=bootnode-v3 --targets=linux/amd64 -v ./cmd/bootnode
 	@echo "Linux centos amd64 cross compilation done:"
 	@ls -ld $(GOBIN)/gece-v3-linux-* | grep amd64
 

@@ -30,7 +30,6 @@ import (
 
 // Constants to match up protocol versions and messages
 const (
-	dece62 = 62
 	dece63 = 63
 )
 
@@ -38,7 +37,7 @@ const (
 var ProtocolName = "dece"
 
 // ProtocolVersions are the upported versions of the dece protocol (first is primary).
-var ProtocolVersions = []uint{dece63, dece62}
+var ProtocolVersions = []uint{dece63}
 
 // ProtocolLengths are the number of implemented message corresponding to different protocol versions.
 var ProtocolLengths = []uint64{24, 8}

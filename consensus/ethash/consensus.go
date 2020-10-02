@@ -357,7 +357,8 @@ func (ethash *Ethash) VerifySeal(chain consensus.ChainReader, header *types.Head
 
 	var digest []byte
 	var result []byte
-	digest, result = progpowLightWithoutCDag(size, cache.cache, cache.cdag, header.HashPow().Bytes(), header.Nonce.Uint64(), number)
+	//digest, result = progpowLightWithoutCDag(size, cache.cache, cache.cdag, header.HashPow().Bytes(), header.Nonce.Uint64(), number)
+	digest, result = hashimotoLight(size, cache.cache, header.HashPow().Bytes(), header.Nonce.Uint64(), number)
 	// Caches are unmapped in a finalizer. Ensure that the cache stays live
 	// until after the call to hashimotoLight so it's not unmapped while being used.
 	runtime.KeepAlive(cache)
@@ -448,142 +449,6 @@ func accumulateRewards(config *params.ChainConfig, statedb *state.StateDB, heade
 	statedb.NextZState().AddTxOut(header.Coinbase, asset, common.BytesToHash([]byte{1}))
 }
 
-func accumulateRewardsV1(config *params.ChainConfig, statedb *state.StateDB, header *types.Header) *big.Int {
-	poolBalance := statedb.GetBalance(state.EmptyAddress, "DECE")
-	if poolBalance.Sign() <= 0 {
-		return big.NewInt(0)
-	}
-
-	reward := new(big.Int).Mul(big.NewInt(350), base)
-
-	difficulty := big.NewInt(1717986918)
-	if config.ChainID == params.AlphanetChainConfig.ChainID {
-		difficulty = big.NewInt(51485767)
-	} else if config.ChainID == params.DevnetChainConfig.ChainID {
-		difficulty = big.NewInt(1048576)
-	}
-
-	if header.Difficulty.Cmp(difficulty) < 0 {
-		ratio := new(big.Int).Div(new(big.Int).Mul(header.Difficulty, big100), difficulty).Uint64()
-		if ratio >= 80 {
-			reward = reward.Mul(reward, big.NewInt(4)).Div(reward, big.NewInt(5))
-		} else if ratio >= 60 {
-			reward = reward.Mul(reward, big.NewInt(3)).Div(reward, big.NewInt(5))
-		} else if ratio >= 40 {
-			reward = reward.Mul(reward, big.NewInt(2)).Div(reward, big.NewInt(5))
-		} else if ratio >= 20 {
-			reward = reward.Mul(reward, big.NewInt(1)).Div(reward, big.NewInt(5))
-		} else {
-			reward = big.NewInt(0).Set(oneDece)
-		}
-	}
-
-	ratio := new(big.Int).Div(new(big.Int).Mul(new(big.Int).SetUint64(header.GasUsed), big100), new(big.Int).SetUint64(header.GasLimit)).Uint64()
-	if ratio >= 80 {
-		reward = new(big.Int).Div(new(big.Int).Mul(reward, big6), big.NewInt(5))
-	} else {
-		reward = reward.Mul(reward, big.NewInt(4)).Div(reward, big.NewInt(5))
-	}
-
-	if reward.Cmp(oneDece) < 0 {
-		reward = big.NewInt(0).Set(oneDece)
-	}
-	statedb.SubBalance(state.EmptyAddress, "DECE", reward)
-	return reward
-}
-
-func accumulateRewardsV2(statedb *state.StateDB, header *types.Header) *big.Int {
-	rewardStd := new(big.Int).Mul(big.NewInt(66773505743), big.NewInt(1000000000))
-	if header.Number.Uint64() >= halveNimber.Uint64() {
-		i := new(big.Int).Add(new(big.Int).Div(new(big.Int).Sub(header.Number, halveNimber), interval), big1)
-		rewardStd.Div(rewardStd, new(big.Int).Exp(big2, i, nil))
-	}
-
-	var reward *big.Int
-	if header.Difficulty.Cmp(difficultyL1) < 0 { // <3.4
-		reward = new(big.Int).Mul(big.NewInt(10), base)
-	} else if header.Difficulty.Cmp(difficultyL2) < 0 { // <17
-		ratio := new(big.Int).Add(new(big.Int).Mul(big.NewInt(56), base), new(big.Int).Mul(big.NewInt(16470000000), new(big.Int).Sub(header.Difficulty, difficultyL1)))
-		reward = new(big.Int).Div(new(big.Int).Mul(rewardStd, ratio), oriReward)
-	} else if header.Difficulty.Cmp(difficultyL3) < 0 { // <40
-		ratio := new(big.Int).Add(new(big.Int).Mul(big.NewInt(280), base), new(big.Int).Mul(big.NewInt(2170000000), new(big.Int).Sub(header.Difficulty, difficultyL2)))
-		reward = new(big.Int).Div(new(big.Int).Mul(rewardStd, ratio), oriReward)
-	} else if header.Difficulty.Cmp(difficultyL4) < 0 { // <170
-		ratio := new(big.Int).Add(new(big.Int).Mul(big.NewInt(330), base), new(big.Int).Mul(big.NewInt(2590000000), new(big.Int).Sub(header.Difficulty, difficultyL3)))
-		reward = new(big.Int).Div(new(big.Int).Mul(rewardStd, ratio), oriReward)
-	} else {
-		reward = rewardStd
-	}
-
-	if statedb == nil {
-		return reward
-	}
-	statedb.AddBalance(communityRewardPool, "DECE", new(big.Int).Div(rewardStd, big.NewInt(15)))
-	statedb.AddBalance(teamRewardPool, "DECE", new(big.Int).Div(new(big.Int).Mul(reward, big2), big.NewInt(15)))
-
-	if header.Number.Uint64()%5000 == 0 {
-		balance := statedb.GetBalance(teamRewardPool, "DECE")
-		statedb.SubBalance(teamRewardPool, "DECE", balance)
-		assetTeam := assets.Asset{Tkn: &assets.Token{
-			Currency: *common.BytesToHash(common.LeftPadBytes([]byte("DECE"), 32)).HashToUint256(),
-			Value:    utils.U256(*balance),
-		},
-		}
-		statedb.NextZState().AddTxOut(teamAddress, assetTeam, common.Hash{})
-
-		balance = statedb.GetBalance(communityRewardPool, "DECE")
-		statedb.SubBalance(communityRewardPool, "DECE", balance)
-		assetCommunity := assets.Asset{Tkn: &assets.Token{
-			Currency: *common.BytesToHash(common.LeftPadBytes([]byte("DECE"), 32)).HashToUint256(),
-			Value:    utils.U256(*balance),
-		},
-		}
-		statedb.NextZState().AddTxOut(communityAddress, assetCommunity, common.Hash{})
-	}
-	return reward
-}
-
-func accumulateRewardsV3(statedb *state.StateDB, header *types.Header) *big.Int {
-	diff := new(big.Int).Div(header.Difficulty, big.NewInt(1000000000))
-	reward := new(big.Int).Add(new(big.Int).Mul(argA, diff), argB)
-
-	if reward.Cmp(lReward) < 0 {
-		reward = new(big.Int).Set(lReward)
-	} else if reward.Cmp(hReward) > 0 {
-		reward = new(big.Int).Set(hReward)
-	}
-
-	i := new(big.Int).Add(new(big.Int).Div(new(big.Int).Sub(header.Number, halveNimber), interval), big1)
-	reward.Div(reward, new(big.Int).Exp(big2, i, nil))
-
-	if statedb == nil {
-		return reward
-	}
-	statedb.AddBalance(teamRewardPool, "DECE", new(big.Int).Div(reward, big.NewInt(5)))
-
-	if header.Number.Uint64()%5000 == 0 {
-		balance := statedb.GetBalance(teamRewardPool, "DECE")
-		statedb.SubBalance(teamRewardPool, "DECE", balance)
-		assetTeam := assets.Asset{Tkn: &assets.Token{
-			Currency: *common.BytesToHash(common.LeftPadBytes([]byte("DECE"), 32)).HashToUint256(),
-			Value:    utils.U256(*balance),
-		},
-		}
-		statedb.NextZState().AddTxOut(teamAddress, assetTeam, common.Hash{})
-
-		balance = statedb.GetBalance(communityRewardPool, "DECE")
-		if balance.Sign() > 0 {
-			statedb.SubBalance(communityRewardPool, "DECE", balance)
-			assetCommunity := assets.Asset{Tkn: &assets.Token{
-				Currency: *common.BytesToHash(common.LeftPadBytes([]byte("DECE"), 32)).HashToUint256(),
-				Value:    utils.U256(*balance),
-			},
-			}
-			statedb.NextZState().AddTxOut(communityAddress, assetCommunity, common.Hash{})
-		}
-	}
-	return reward
-}
 
 func accumulateRewardsV4(statedb *state.StateDB, header *types.Header) *big.Int {
 	diff := new(big.Int).Div(header.Difficulty, big.NewInt(1000000000))

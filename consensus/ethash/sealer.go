@@ -130,8 +130,8 @@ search:
 			// Compute the PoW value of this nonce
 			var digest []byte
 			var result []byte
-			digest, result = progpowFull(dataset.dataset, hash, nonce, number)
-
+			//digest, result = progpowFull(dataset.dataset, hash, nonce, number)
+			digest, result = hashimotoFull(dataset.dataset, hash, nonce, number)
 			if new(big.Int).SetBytes(result).Cmp(target) <= 0 {
 				// Correct nonce found, create a new header with it
 				header = types.CopyHeader(header)
