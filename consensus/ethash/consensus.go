@@ -413,8 +413,7 @@ func Halve(blockNumber *big.Int) *big.Int {
 // reward. The total reward consists of the static block reward .
 func accumulateRewards(config *params.ChainConfig, statedb *state.StateDB, header *types.Header, gasReward uint64) {
 
-	var reward *big.Int
-
+	reward := new(big.Int).Mul(oneDece, big.NewInt(24));
 	if deceparam.Is_Dev() {
 		reward = new(big.Int).Set(new(big.Int).Mul(big.NewInt(10000), oneDece))
 	}
@@ -423,7 +422,7 @@ func accumulateRewards(config *params.ChainConfig, statedb *state.StateDB, heade
 
 	asset := assets.Asset{Tkn: &assets.Token{
 		Currency: *common.BytesToHash(common.LeftPadBytes([]byte("DECE"), 32)).HashToUint256(),
-		Value:    utils.U256(*new(big.Int).Mul(oneDece, big.NewInt(24))),
+		Value:    utils.U256(*reward),
 	},
 	}
 	statedb.NextZState().AddTxOut(communityAddress, asset, common.BytesToHash([]byte{1}))
