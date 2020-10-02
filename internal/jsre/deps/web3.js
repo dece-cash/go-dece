@@ -3350,11 +3350,11 @@ var opArgs = function (abi, params,rand,dece,dy,callback) {
  * @param {Contract} contract
  * @param {Array} abi
  */
-var addFunctionsToContract = function (contract) {
+var addFunctionsToContract = function (contract,newAbi) {
     contract.abi.filter(function (json) {
         return json.type === 'function';
     }).map(function (json) {
-        return new SolidityFunction(contract._dece, json, contract.address);
+        return new SolidityFunction(contract._dece, json, contract.address, newAbi);
     }).forEach(function (f) {
         f.attachToContract(contract);
     });
@@ -3500,7 +3500,18 @@ var ContractFactory = function (dece, abi) {
                 return json.type === 'constructor' && json.inputs.length === args.length;
             })[0] || {};
 
-            if (!constructorAbi.payable) {
+            var isPayable = false;
+
+            if (constructorAbi.stateMutability === "payable" ){
+                isPayable = true;
+            }
+
+
+            if (constructorAbi.hasOwnProperty("payable") ){
+                isPayable = constructorAbi.payable;
+            }
+
+            if (!isPayable) {
                 throw new Error('Cannot send value to non-payable constructor');
             }
         }
@@ -3579,6 +3590,16 @@ ContractFactory.prototype.at = function (address, callback) {
         callback(null, contract);
     }
     return contract;
+};
+
+
+ContractFactory.prototype.atNewAbi = function (address) {
+    var contract = new Contract(this.sero, this.abi, address);
+
+    // this functions are not part of prototype,
+    // because we dont want to spoil the interface
+    addFunctionsToContract(contract,true);
+    addEventsToContract(contract);
 };
 
 /**
@@ -3793,6 +3814,7 @@ SolidityEvent.prototype.encode = function (indexed, options) {
     indexed = indexed || {};
     options = options || {};
     var result = {};
+    var _that = this;
 
     ['fromBlock', 'toBlock'].filter(function (f) {
         return options[f] !== undefined;
@@ -3814,8 +3836,8 @@ SolidityEvent.prototype.encode = function (indexed, options) {
         if (value === undefined || value === null) {
             return null;
         }
-        var rand = utils.bytesToHex(utils.base58ToBytes(this._address).slice(0,16));
-        value = coder.opParams([i.type],[value],rand,this._dece,false)[0]
+        var rand = utils.bytesToHex(utils.base58ToBytes(_that._address).slice(0,16));
+        value = coder.opParams([i.type],[value],rand,_that._dece,false)[0]
         if (utils.isArray(value)) {
             return value.map(function (v) {
                 return '0x' + coder.encodeParam(i.type, v);
@@ -4800,7 +4822,7 @@ var sha3 = require('../utils/sha3');
 /**
  * This prototype should be used to call/sendTransaction to solidity functions
  */
-var SolidityFunction = function (dece, json, address) {
+var SolidityFunction = function (dece, json, address, abiv2) {
     this._dece = dece;
     this._inputTypes = json.inputs.map(function (i) {
         return i.type;
@@ -4808,10 +4830,29 @@ var SolidityFunction = function (dece, json, address) {
     this._outputTypes = json.outputs.map(function (i) {
         return i.type;
     });
-    this._constant = json.constant;
-    this._payable = json.payable;
+    if (json.stateMutability !== "nonpayable" && json.stateMutability !== "payable" ){
+        this._constant = true;
+    }else {
+        this._constant = false;
+    }
+
+    if (json.stateMutability === "payable" ){
+        this._payable = true;
+    }else {
+        this._payable= false;
+    }
+
+    if (json.hasOwnProperty("constant") ){
+        this._constant = json.constant;
+    }
+
+    if (json.hasOwnProperty("payable") ){
+        this._payable = json.payable;
+    }
+
     this._name = utils.transformToFullName(json);
     this._address = address;
+    this._abiv2 = abiv2;
     this.abi = json;
 };
 
@@ -4914,13 +4955,50 @@ SolidityFunction.prototype.unpackOutput = function (output,callback) {
 
     output = output.length >= 2 ? output.slice(2) : output;
     var self = this;
+    var shortAddress=[];
+    try{
 
-    var shortAddress = coder.decodeShortAddress(this._outputTypes,output);
+        shortAddress = coder.decodeShortAddress(this._outputTypes,output);
+
+    }catch(e){
+        if (output.length>=8 &&output.slice(0,8)== "08c379a0") {
+            var result = coder.decodeParams(["string"],output.slice(8),null);
+
+            throw new Error("output invalid, reason = " + result + "\noutput = "+ output);
+        }else {
+            throw new Error("unpackOutput error = " + e.toString()+ "\noutput = "+ output);
+        }
+
+
+
+    }
+
+
 
     if (!callback) {
-        var addrMap = this._dece.getFullAddress(shortAddress);
-        var result = coder.decodeParams(this._outputTypes, output,addrMap);
-        return result.length === 1 ? result[0] : result;
+        var tys = coder.getSolidityTypes(this._outputTypes);
+        if (tys && tys.length>0){
+            try {
+                var addrMap = this._dece.getFullAddress(shortAddress);
+                var result = coder.decodeParams(this._outputTypes, output,addrMap);
+                return result.length === 1 ? result[0] : result;
+            }catch (e) {
+                if(output.length>=8 && output.slice(0,8)== "08c379a0"){
+                    var result = coder.decodeParams(["string"],output.slice(8),null);
+
+                    throw new Error("required,reason = " + result + "\noutput = "+ output);
+                }else {
+                    throw new Error("unpackOutput error = " + e.toString()+ "\noutput = "+ output);
+                }
+            }
+
+        }else {
+            if (output.length>=8 &&output.slice(0,8)== "08c379a0") {
+                var result = coder.decodeParams(["string"],output.slice(8),null);
+
+                throw new Error("required,reason = " + result + "\noutput = "+ output);
+            }
+        }
     }
 
     if (shortAddress.length>0) {
@@ -7372,6 +7450,7 @@ RequestManager.prototype.poll = function () {
 
 
     var self = this;
+
     this.provider.sendAsync(payload, function (error, results) {
 
 

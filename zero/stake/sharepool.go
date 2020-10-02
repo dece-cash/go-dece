@@ -10,17 +10,16 @@ import (
 
 	"github.com/dece-cash/go-dece/consensus/ethash"
 
-	"github.com/dece-cash/go-dece/czero/c_type"
-	"github.com/dece-cash/go-dece/czero/deceparam"
-	"github.com/dece-cash/go-dece/czero/superzk"
 	"github.com/dece-cash/go-dece/common"
 	"github.com/dece-cash/go-dece/core/state"
 	"github.com/dece-cash/go-dece/core/types"
 	"github.com/dece-cash/go-dece/crypto"
 	"github.com/dece-cash/go-dece/crypto/sha3"
+	"github.com/dece-cash/go-dece/czero/c_type"
+	"github.com/dece-cash/go-dece/czero/superzk"
+	"github.com/dece-cash/go-dece/decedb"
 	"github.com/dece-cash/go-dece/log"
 	"github.com/dece-cash/go-dece/rlp"
-	"github.com/dece-cash/go-dece/decedb"
 	"github.com/dece-cash/go-dece/zero/consensus"
 	"github.com/dece-cash/go-dece/zero/txs/assets"
 	"github.com/dece-cash/go-dece/zero/utils"
@@ -679,22 +678,25 @@ func (self *StakeState) CaleAvgPrice(amount *big.Int) (uint32, *big.Int, *big.In
 }
 
 func (self *StakeState) StakeCurrentReward(blockNumber *big.Int) (soloRewards *big.Int, totalRewards *big.Int) {
-	if deceparam.Is_Dev() {
-		return big.NewInt(600000000000000000), big.NewInt(900000000000000000)
-	}
 
-	size := NewTree(self, blockNumber.Uint64()).Size()
-	totalReward := new(big.Int).Add(baseReware, new(big.Int).Mul(rewareStep, big.NewInt(int64(size))))
+	return big.NewInt(0), big.NewInt(0)
 
-	if totalReward.Cmp(maxReware) > 0 {
-		totalReward = new(big.Int).Set(maxReware)
-	}
-
-	halve := ethash.Halve(blockNumber)
-	totalReward = new(big.Int).Div(totalReward, halve)
-	totalReward = new(big.Int).Div(totalReward, big.NewInt(3))
-
-	return new(big.Int).Div(new(big.Int).Mul(totalReward, big.NewInt(SOLO_RATE)), big.NewInt(TOTAL_RATE)), totalReward
+	// if deceparam.Is_Dev() {
+	// 	return big.NewInt(600000000000000000), big.NewInt(900000000000000000)
+	// }
+	//
+	// size := NewTree(self, blockNumber.Uint64()).Size()
+	// totalReward := new(big.Int).Add(baseReware, new(big.Int).Mul(rewareStep, big.NewInt(int64(size))))
+	//
+	// if totalReward.Cmp(maxReware) > 0 {
+	// 	totalReward = new(big.Int).Set(maxReware)
+	// }
+	//
+	// halve := ethash.Halve(blockNumber)
+	// totalReward = new(big.Int).Div(totalReward, halve)
+	// totalReward = new(big.Int).Div(totalReward, big.NewInt(3))
+	//
+	// return new(big.Int).Div(new(big.Int).Mul(totalReward, big.NewInt(SOLO_RATE)), big.NewInt(TOTAL_RATE)), totalReward
 }
 
 func GetPosRewardBySize(size uint64, blockNumber int64) (soloRewards *big.Int, totalRewards *big.Int) {

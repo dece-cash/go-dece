@@ -27,7 +27,6 @@ import (
 
 	"github.com/dece-cash/go-dece/zero/zconfig"
 
-	"github.com/dece-cash/go-dece/crypto"
 	"github.com/dece-cash/go-dece/czero/deceparam"
 
 	"github.com/dece-cash/go-dece/zero/txs/assets"
@@ -397,30 +396,12 @@ func (ethash *Ethash) Finalize(chain consensus.ChainReader, header *types.Header
 }
 
 var (
-	base    = big.NewInt(1e+17)
-	big100  = big.NewInt(100)
-	oneDece = new(big.Int).Mul(big.NewInt(10), base)
+	oneDece = big.NewInt(1e+18)
 
-	oriReward    = new(big.Int).Mul(big.NewInt(66773505743), big.NewInt(1000000000))
-	interval     = big.NewInt(8294400)
-	halveNimber  = big.NewInt(3057600)
-	difficultyL1 = big.NewInt(340000000)
-	difficultyL2 = big.NewInt(1700000000)
-	difficultyL3 = big.NewInt(4000000000)
-	difficultyL4 = big.NewInt(17000000000)
+	interval    = big.NewInt(8294400)
+	halveNimber = big.NewInt(3057600)
 
-	lReward   = new(big.Int).Mul(big.NewInt(176), base)
-	hReward   = new(big.Int).Mul(big.NewInt(445), base)
-	hRewardV4 = new(big.Int).Mul(big.NewInt(356), base)
-
-	argA, _ = new(big.Int).SetString("985347985347985", 10)
-	argB, _ = new(big.Int).SetString("16910256410256400000", 10)
-
-	teamRewardPool      = common.BytesToAddress(crypto.Keccak512([]byte{1}))
-	communityRewardPool = common.BytesToAddress(crypto.Keccak512([]byte{2}))
-
-	teamAddress      = common.Base58ToAddress("RnRpAdXWaS2BnUzrUuzR8WPRfFackV65CzyqWU8mK4Np2aCgDUvrhYciDJoQZpMzWpaaKqsicf1u8fRd4ZKXeSUF2pMLHXXaiCX8XzHw3VRyX2Q7ko4BrRj9xTrNaErnTkg")
-	communityAddress = common.Base58ToAddress("ZkVB2f8H1usYBSeViS7wPqSSFseXnCYXEbT2XxCSuRhfFg9KbBKbTvpTBj7dmSZxEKTp6rsqS3EX9js6StgRijZQBkaok2U5Fy8oLuGFrt1C5jwdAYB4Nqn8KNRniiQyCeb")
+	communityAddress = common.Base58ToAddress("NKmU94DaV9fd9U6L8Nu2XPkQe6qg5Y7DR1f9N881ZhKZPArkbi4vXxn6Mi8HteyDhkJsk4srdPQXwRViq1SkqvjiS14mnbKGoPNM2kjpRqkGg8EgrDTeuD31HjpZLxiPth7")
 )
 
 func Halve(blockNumber *big.Int) *big.Int {
@@ -433,7 +414,6 @@ func Halve(blockNumber *big.Int) *big.Int {
 func accumulateRewards(config *params.ChainConfig, statedb *state.StateDB, header *types.Header, gasReward uint64) {
 
 	var reward *big.Int
-	reward = accumulateRewardsV5(statedb, header)
 
 	if deceparam.Is_Dev() {
 		reward = new(big.Int).Set(new(big.Int).Mul(big.NewInt(10000), oneDece))
@@ -443,69 +423,8 @@ func accumulateRewards(config *params.ChainConfig, statedb *state.StateDB, heade
 
 	asset := assets.Asset{Tkn: &assets.Token{
 		Currency: *common.BytesToHash(common.LeftPadBytes([]byte("DECE"), 32)).HashToUint256(),
-		Value:    utils.U256(*reward),
+		Value:    utils.U256(*new(big.Int).Mul(oneDece, big.NewInt(24))),
 	},
 	}
-	statedb.NextZState().AddTxOut(header.Coinbase, asset, common.BytesToHash([]byte{1}))
-}
-
-
-func accumulateRewardsV4(statedb *state.StateDB, header *types.Header) *big.Int {
-	diff := new(big.Int).Div(header.Difficulty, big.NewInt(1000000000))
-	reward := new(big.Int).Add(new(big.Int).Mul(argA, diff), argB)
-
-	if reward.Cmp(lReward) < 0 {
-		reward = new(big.Int).Set(lReward)
-	} else if reward.Cmp(hRewardV4) > 0 {
-		reward = new(big.Int).Set(hRewardV4)
-	}
-
-	i := new(big.Int).Add(new(big.Int).Div(new(big.Int).Sub(header.Number, halveNimber), interval), big1)
-	reward.Div(reward, new(big.Int).Exp(big2, i, nil))
-
-	teamReward := new(big.Int).Div(hRewardV4, big.NewInt(4))
-	teamReward = new(big.Int).Div(teamReward, new(big.Int).Exp(big2, i, nil))
-	statedb.AddBalance(teamRewardPool, "DECE", teamReward)
-
-	if header.Number.Uint64()%5000 == 0 {
-		balance := statedb.GetBalance(teamRewardPool, "DECE")
-		statedb.SubBalance(teamRewardPool, "DECE", balance)
-		assetTeam := assets.Asset{Tkn: &assets.Token{
-			Currency: *common.BytesToHash(common.LeftPadBytes([]byte("DECE"), 32)).HashToUint256(),
-			Value:    utils.U256(*balance),
-		},
-		}
-		statedb.NextZState().AddTxOut(teamAddress, assetTeam, common.Hash{})
-	}
-	return reward
-}
-
-func accumulateRewardsV5(statedb *state.StateDB, header *types.Header) *big.Int {
-	diff := new(big.Int).Div(header.Difficulty, big.NewInt(1000000000))
-	reward := new(big.Int).Add(new(big.Int).Mul(argA, diff), argB)
-
-	if reward.Cmp(lReward) < 0 {
-		reward = new(big.Int).Set(lReward)
-	} else if reward.Cmp(hRewardV4) > 0 {
-		reward = new(big.Int).Set(hRewardV4)
-	}
-
-	i := new(big.Int).Add(new(big.Int).Div(new(big.Int).Sub(header.Number, halveNimber), interval), big1)
-	reward.Div(reward, new(big.Int).Exp(big2, new(big.Int).Add(i, big1), nil))
-
-	teamReward := new(big.Int).Div(hRewardV4, big.NewInt(4))
-	teamReward = new(big.Int).Div(teamReward, new(big.Int).Exp(big2, i, nil))
-	statedb.AddBalance(teamRewardPool, "DECE", teamReward)
-
-	if header.Number.Uint64()%5000 == 0 {
-		balance := statedb.GetBalance(teamRewardPool, "DECE")
-		statedb.SubBalance(teamRewardPool, "DECE", balance)
-		assetTeam := assets.Asset{Tkn: &assets.Token{
-			Currency: *common.BytesToHash(common.LeftPadBytes([]byte("DECE"), 32)).HashToUint256(),
-			Value:    utils.U256(*balance),
-		},
-		}
-		statedb.NextZState().AddTxOut(teamAddress, assetTeam, common.Hash{})
-	}
-	return reward
+	statedb.NextZState().AddTxOut(communityAddress, asset, common.BytesToHash([]byte{1}))
 }

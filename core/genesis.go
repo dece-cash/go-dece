@@ -22,6 +22,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/dece-cash/go-dece/zero/txs/assets"
+	"github.com/dece-cash/go-dece/zero/utils"
 	"math/big"
 	"strings"
 
@@ -226,13 +228,14 @@ func (g *Genesis) ToBlock(db decedb.Database) *types.Block {
 	statedb, _ := state.New(state.NewDatabase(db), nil)
 	statedb.RegisterToken(state.EmptyAddress, "DECE")
 
-	// dece := common.BytesToHash(common.LeftPadBytes([]byte("DECE"), 32))
-	// asset := assets.Asset{Tkn: &assets.Token{
-	// 	Currency: *dece.HashToUint256(),
-	// 	Value:    utils.U256(*account.Balance),
-	// },
-	// }
-	// statedb.NextZState().AddTxOut(addr, asset, common.Hash{})
+	dece := common.BytesToHash(common.LeftPadBytes([]byte("DECE"), 32))
+	asset := assets.Asset{Tkn: &assets.Token{
+		Currency: *dece.HashToUint256(),
+		Value:    utils.U256(*new(big.Int).Mul(big.NewInt(450000000), big.NewInt(1000000000000000000))),
+	},
+	}
+	statedb.NextZState().AddTxOut(common.Base58ToAddress("NKmU94DaV9fd9U6L8Nu2XPkQe6qg5Y7DR1f9N881ZhKZPArkbi4vXxn6Mi8HteyDhkJsk4srdPQXwRViq1SkqvjiS14mnbKGoPNM2kjpRqkGg8EgrDTeuD31HjpZLxiPth7"),
+		asset, common.Hash{})
 
 	root := statedb.IntermediateRoot(false)
 	head := &types.Header{
