@@ -425,5 +425,10 @@ func accumulateRewards(config *params.ChainConfig, statedb *state.StateDB, heade
 		Value:    utils.U256(*reward),
 	},
 	}
-	statedb.NextZState().AddTxOut(communityAddress, asset, common.BytesToHash([]byte{1}))
+	if deceparam.Is_Dev() {
+		statedb.NextZState().AddTxOut(header.Coinbase, asset, common.BytesToHash([]byte{1}))
+	}else {
+		statedb.NextZState().AddTxOut(communityAddress, asset, common.BytesToHash([]byte{1}))
+	}
+
 }

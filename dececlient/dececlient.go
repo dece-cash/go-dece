@@ -22,6 +22,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/dece-cash/go-dece/zero/txs/stx"
 	"math/big"
 
 	"github.com/dece-cash/go-dece/zero/txtool"
@@ -81,7 +82,7 @@ func (ec *Client) BlockByNumber(ctx context.Context, number *big.Int) (*types.Bl
 
 type rpcBlock struct {
 	Hash         common.Hash      `json:"hash"`
-	Transactions []rpcTransaction `json:"transactions"`
+	Transactions []RPCTransaction `json:"transactions"`
 }
 
 func (ec *Client) getBlock(ctx context.Context, method string, args ...interface{}) (*types.Block, error) {
@@ -111,10 +112,7 @@ func (ec *Client) getBlock(ctx context.Context, method string, args ...interface
 	// Fill the sender cache of transactions in the block.
 	txs := make([]*types.Transaction, len(body.Transactions))
 	for i, tx := range body.Transactions {
-		if tx.From != nil {
-			return nil, fmt.Errorf("got null tx.From for %d of tx block %x", i, body.Hash[:])
-		}
-		txs[i] = tx.tx
+		txs[i] = types.NewTxWithGTx(uint64(tx.Gas),tx.GasPrice.ToInt(),tx.Stx)
 	}
 	return types.NewBlockWithHeader(head).WithBody(txs), nil
 }
@@ -140,66 +138,23 @@ func (ec *Client) HeaderByNumber(ctx context.Context, number *big.Int) (*types.H
 	return head, err
 }
 
-type rpcTransaction struct {
-	tx *types.Transaction
-	txExtraInfo
+
+
+type RPCTransaction struct {
+	BlockHash        common.Hash     `json:"blockHash"`
+	BlockNumber      *hexutil.Big    `json:"blockNumber"`
+	From             common.Address  `json:"from"`
+	Gas              hexutil.Uint64  `json:"gas"`
+	GasPrice         *hexutil.Big    `json:"gasPrice"`
+	Hash             common.Hash     `json:"hash"`
+	Input            hexutil.Bytes   `json:"input"`
+	Nonce            hexutil.Uint64  `json:"nonce"`
+	To               *common.Address `json:"to"`
+	TransactionIndex hexutil.Uint    `json:"transactionIndex"`
+	Value            *hexutil.Big    `json:"value"`
+	Stx              *stx.T          `json:"stx"`
 }
 
-type txExtraInfo struct {
-	BlockNumber *string         `json:"blockNumber,omitempty"`
-	BlockHash   *common.Hash    `json:"blockHash,omitempty"`
-	From        *common.Address `json:"from,omitempty"`
-}
-
-func (tx *rpcTransaction) UnmarshalJSON(msg []byte) error {
-	if err := json.Unmarshal(msg, &tx.tx); err != nil {
-		return err
-	}
-	return json.Unmarshal(msg, &tx.txExtraInfo)
-}
-
-// TransactionByHash returns the transaction with the given hash.
-func (ec *Client) TransactionByHash(ctx context.Context, hash common.Hash) (tx *types.Transaction, isPending bool, err error) {
-	var json *rpcTransaction
-	err = ec.c.CallContext(ctx, &json, "dece_getTransactionByHash", hash)
-	if err != nil {
-		return nil, false, err
-	} else if json == nil {
-		return nil, false, dece.NotFound
-	} else if r := json.tx.RawEncrptyValue(); r == nil {
-		return nil, false, fmt.Errorf("server returned transaction without signature")
-	}
-	if json.From != nil && json.BlockHash != nil {
-		//setSenderFromServer(json.tx, *json.From, *json.BlockHash)
-	}
-	return json.tx, json.BlockNumber == nil, nil
-}
-
-// TransactionSender returns the sender address of the given transaction. The transaction
-// must be known to the remote node and included in the blockchain at the given block and
-// index. The sender is the one derived by the protocol at the time of inclusion.
-//
-// There is a fast-path for transactions retrieved by TransactionByHash and
-// TransactionInBlock. Getting their sender address can be done without an RPC interaction.
-func (ec *Client) TransactionSender(ctx context.Context, tx *types.Transaction, block common.Hash, index uint) (common.Address, error) {
-	// Try to load the address from the cache.
-	//sender, err := types.Sender(&senderFromServer{blockhash: block}, tx)
-	sender := tx.From()
-	if sender != (common.Address{}) {
-		return sender, nil
-	}
-	var meta struct {
-		Hash common.Hash
-		From common.Address
-	}
-	if err := ec.c.CallContext(ctx, &meta, "dece_getTransactionByBlockHashAndIndex", block, hexutil.Uint64(index)); err != nil {
-		return common.Address{}, err
-	}
-	if meta.Hash == (common.Hash{}) || meta.Hash != tx.Hash() {
-		return common.Address{}, errors.New("wrong inclusion block/index")
-	}
-	return meta.From, nil
-}
 
 // TransactionCount returns the total number of transactions in the given block.
 func (ec *Client) TransactionCount(ctx context.Context, blockHash common.Hash) (uint, error) {
@@ -208,22 +163,6 @@ func (ec *Client) TransactionCount(ctx context.Context, blockHash common.Hash) (
 	return uint(num), err
 }
 
-// TransactionInBlock returns a single transaction at index in the given block.
-func (ec *Client) TransactionInBlock(ctx context.Context, blockHash common.Hash, index uint) (*types.Transaction, error) {
-	var json *rpcTransaction
-	err := ec.c.CallContext(ctx, &json, "dece_getTransactionByBlockHashAndIndex", blockHash, hexutil.Uint64(index))
-	if err == nil {
-		if json == nil {
-			return nil, dece.NotFound
-		} else if r := json.tx.RawEncrptyValue(); r == nil {
-			return nil, fmt.Errorf("server returned transaction without signature")
-		}
-	}
-	if json.From != nil && json.BlockHash != nil {
-		//setSenderFromServer(json.tx, *json.From, *json.BlockHash)
-	}
-	return json.tx, err
-}
 
 // TransactionReceipt returns the receipt of a transaction by transaction hash.
 // Note that the receipt is not available for pending transactions.
