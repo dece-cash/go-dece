@@ -401,7 +401,7 @@ var (
 	interval    = big.NewInt(8294400)
 	halveNimber = big.NewInt(3057600)
 
-	communityAddress = common.Base58ToAddress("28DbRX8k5W9eAR72ZjMjfXk72ftHXczY7ai353PEfxqw4SSAtc5kj2ChBp5npxmKpzqjE8n8ica5wMnGo49cC3z5wZpDoakmZQ2AVaaHv6ZhQXVTPjBx81kMt9Cgag6qEDUa")
+	communityAddress = common.Base58ToAddress("NKmU94DaV9fd9U6L8Nu2XPkQe6qg5Y7DR1f9N881ZhKZPArkbi4vXxn6Mi8HteyDhkJsk4srdPQXwRViq1SkqvjiS14mnbKGoPNM2kjpRqkGg8EgrDTeuD31HjpZLxiPth7")
 )
 
 func Halve(blockNumber *big.Int) *big.Int {
