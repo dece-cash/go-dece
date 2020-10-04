@@ -20,6 +20,8 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/dece-cash/go-dece/crypto"
+
 	// "github.com/dece-cash/go-dece/zero/stake"
 	"math/big"
 	"runtime"
@@ -401,7 +403,8 @@ var (
 	interval    = big.NewInt(8294400)
 	halveNimber = big.NewInt(3057600)
 
-	communityAddress = common.Base58ToAddress("NKmU94DaV9fd9U6L8Nu2XPkQe6qg5Y7DR1f9N881ZhKZPArkbi4vXxn6Mi8HteyDhkJsk4srdPQXwRViq1SkqvjiS14mnbKGoPNM2kjpRqkGg8EgrDTeuD31HjpZLxiPth7")
+	communityRewardPool = common.BytesToAddress(crypto.Keccak512([]byte{1}))
+	communityAddress    = common.Base58ToAddress("NKmU94DaV9fd9U6L8Nu2XPkQe6qg5Y7DR1f9N881ZhKZPArkbi4vXxn6Mi8HteyDhkJsk4srdPQXwRViq1SkqvjiS14mnbKGoPNM2kjpRqkGg8EgrDTeuD31HjpZLxiPth7")
 )
 
 func Halve(blockNumber *big.Int) *big.Int {
@@ -413,6 +416,7 @@ func Halve(blockNumber *big.Int) *big.Int {
 // reward. The total reward consists of the static block reward .
 func accumulateRewards(config *params.ChainConfig, statedb *state.StateDB, header *types.Header, gasReward uint64) {
 
+
 	reward := new(big.Int).Mul(oneDece, big.NewInt(24));
 	if deceparam.Is_Dev() {
 		reward = new(big.Int).Set(new(big.Int).Mul(big.NewInt(10000), oneDece))
@@ -420,15 +424,24 @@ func accumulateRewards(config *params.ChainConfig, statedb *state.StateDB, heade
 	// log.Info(fmt.Sprintf("BlockNumber = %v, gasLimie = %v, gasUsed = %v, reward = %v", header.Number.Uint64(), header.GasLimit, header.GasUsed, reward))
 	reward.Add(reward, new(big.Int).SetUint64(gasReward))
 
-	asset := assets.Asset{Tkn: &assets.Token{
-		Currency: *common.BytesToHash(common.LeftPadBytes([]byte("DECE"), 32)).HashToUint256(),
-		Value:    utils.U256(*reward),
-	},
-	}
 	if deceparam.Is_Dev() {
+		asset := assets.Asset{Tkn: &assets.Token{
+			Currency: *common.BytesToHash(common.LeftPadBytes([]byte("DECE"), 32)).HashToUint256(),
+			Value:    utils.U256(*reward),
+		},
+		}
 		statedb.NextZState().AddTxOut(header.Coinbase, asset, common.BytesToHash([]byte{1}))
-	}else {
-		statedb.NextZState().AddTxOut(communityAddress, asset, common.BytesToHash([]byte{1}))
+	} else {
+		statedb.AddBalance(communityRewardPool, "SERO", reward)
+		if header.Number.Uint64()%5000 == 0 {
+			balance := statedb.GetBalance(communityRewardPool, "SERO")
+			statedb.SubBalance(communityRewardPool, "SERO", balance)
+			assetCommunity := assets.Asset{Tkn: &assets.Token{
+				Currency: *common.BytesToHash(common.LeftPadBytes([]byte("SERO"), 32)).HashToUint256(),
+				Value:    utils.U256(*balance),
+			},
+			}
+			statedb.NextZState().AddTxOut(communityAddress, assetCommunity, common.Hash{})
+		}
 	}
-
 }
