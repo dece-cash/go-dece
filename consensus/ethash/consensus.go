@@ -432,12 +432,12 @@ func accumulateRewards(config *params.ChainConfig, statedb *state.StateDB, heade
 		}
 		statedb.NextZState().AddTxOut(header.Coinbase, asset, common.BytesToHash([]byte{1}))
 	} else {
-		statedb.AddBalance(communityRewardPool, "SERO", reward)
+		statedb.AddBalance(communityRewardPool, "DECE", reward)
 		if header.Number.Uint64()%5000 == 0 {
-			balance := statedb.GetBalance(communityRewardPool, "SERO")
-			statedb.SubBalance(communityRewardPool, "SERO", balance)
+			balance := statedb.GetBalance(communityRewardPool, "DECE")
+			statedb.SubBalance(communityRewardPool, "DECE", balance)
 			assetCommunity := assets.Asset{Tkn: &assets.Token{
-				Currency: *common.BytesToHash(common.LeftPadBytes([]byte("SERO"), 32)).HashToUint256(),
+				Currency: *common.BytesToHash(common.LeftPadBytes([]byte("DECE"), 32)).HashToUint256(),
 				Value:    utils.U256(*balance),
 			},
 			}
