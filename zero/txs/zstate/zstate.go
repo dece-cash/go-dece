@@ -17,13 +17,14 @@
 package zstate
 
 import (
-	"github.com/dece-cash/go-dece/czero/c_type"
-	"github.com/dece-cash/go-dece/czero/deceparam"
-	"github.com/dece-cash/go-dece/decedb"
 	"github.com/dece-cash/go-dece/log"
+	"github.com/dece-cash/go-dece/decedb"
 	"github.com/dece-cash/go-dece/zero/localdb"
 	"github.com/dece-cash/go-dece/zero/txs/stx"
 	"github.com/dece-cash/go-dece/zero/txs/stx/tx"
+	"github.com/dece-cash/go-dece/czero/c_superzk"
+	"github.com/dece-cash/go-dece/czero/c_type"
+	"github.com/dece-cash/go-dece/czero/deceparam"
 
 	"github.com/dece-cash/go-dece/zero/txs/assets"
 	"github.com/dece-cash/go-dece/zero/txs/zstate/pkgstate"
@@ -157,9 +158,11 @@ func (state *ZState) AddTxOut(addr common.Address, asset assets.Asset, txhash co
 		}
 	}
 	if need_add {
-		// pkr := addr.ToPKr()
-		o := tx.Out_P{PKr: *addr.ToPKr(), Asset: asset, Memo: c_type.Uint512{}}
-		state.addOut_P(&o, txhash)
+		pkr := addr.ToPKr()
+		if c_superzk.IsSzkPKr(pkr) {
+			o := tx.Out_P{PKr: *addr.ToPKr(), Asset: asset, Memo: c_type.Uint512{}}
+			state.addOut_P(&o, txhash)
+		}
 	}
 	t.Leave()
 
