@@ -1,84 +1,13 @@
 package deceparam
-//
-// func SIP1() uint64 {
-// 	if is_dev {
-// 		return 0
-// 	} else {
-// 		return uint64(130000) //for miner rewards
-// 	}
-// }
-//
-// func SIP2() uint64 {
-// 	if is_dev {
-// 		return 0
-// 	} else {
-// 		return uint64(606006)
-// 	}
-// }
-//
-// func SIP3() uint64 {
-// 	if is_dev {
-// 		return uint64(940410)
-// 	} else {
-// 		return uint64(940410)
-// 	}
-// }
-//
-// func VP1() uint64 {
-// 	if is_dev {
-// 		return 0
-// 	} else {
-// 		return uint64(829000)
-// 	}
-// }
-//
-// func VP0() uint64 {
-// 	if is_dev {
-// 		return 0
-// 	} else {
-// 		return uint64(788888)
-// 	}
-// }
-//
-// func SIP4() uint64 {
-// 	if is_dev {
-// 		return 0
-// 	} else {
-// 		return uint64(1300000)
-// 	}
-// }
-//
-// func SIP5() uint64 {
-// 	if is_dev {
-// 		return 0
-// 	} else {
-// 		return uint64(1958696)
-// 	}
-// }
-//
-// func SIP6() uint64 {
-// 	if is_dev {
-// 		return 0
-// 	} else {
-// 		return uint64(2123558)
-// 	}
-// }
-//
-// func SIP7() uint64 {
-// 	if is_dev {
-// 		return 20
-// 	} else {
-// 		return uint64(2764851)
-// 	}
-// }
-//
-// func SIP8() uint64 {
-// 	if is_dev {
-// 		return 50
-// 	} else {
-// 		return uint64(3315000)
-// 	}
-// }
+
+
+func SIP1() uint64 {
+	if is_dev {
+		return 0
+	} else {
+		return uint64(140000) // for miner rewards
+	}
+}
 
 const MAX_O_INS_LENGTH = int(2500)
 
