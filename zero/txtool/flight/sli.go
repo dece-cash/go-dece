@@ -16,7 +16,7 @@ import (
 
 func GenTx(param *txtool.GTxParam) (gtx txtool.GTx, e error) {
 	var need_szk = true
-
+	var z = false
 	if (txtool.Ref_inst.Bc != nil) && (!deceparam.Is_Offline()) {
 		param.Z = &need_szk
 	} else {
@@ -24,6 +24,8 @@ func GenTx(param *txtool.GTxParam) (gtx txtool.GTx, e error) {
 			need_szk = false
 		}
 	}
+
+	param.Z = &z
 
 	if need_szk {
 		if tx, param, keys, bases, err := SignTx1(param); err != nil {
