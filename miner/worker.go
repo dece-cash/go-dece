@@ -508,7 +508,11 @@ func (self *worker) commitNewWork() {
 	work := self.current
 
 	var pending types.Transactions
-	for {
+
+ 	for {
+		if self.mining == 0 {
+			break
+		}
 		pending, err = self.eth.TxPool().Pending()
 		if err != nil {
 			log.Error("Failed to fetch pending transactions", "err", err)
