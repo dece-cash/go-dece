@@ -18,7 +18,7 @@ BUILD_PATH="${DECE_PATH%}/build"
 CZERO_PATH="${DECE_PATH%}/czero"
 
 os="all"
-version="v0.0.1-beta.rc1"
+version=`date "+%Y-%m-%d"`
 while getopts ":o:v:" opt
 do
     case $opt in
@@ -35,7 +35,7 @@ do
 done
 
 if [ "$os" = "all" ]; then
-    os_version=("linux-amd64-v3" "linux-amd64-v4" "darwin-amd64" "windows-amd64")
+    os_version=("linux-amd64" "darwin-amd64" "windows-amd64")
 else
     os_version[0]="$os"
 fi
@@ -55,14 +55,10 @@ for os in ${os_version[@]}
       if [ $os == "windows-amd64" ];then
         mv $BUILD_PATH/bin/gece*.exe $BUILD_PATH/gecepkg/bin/gece.exe
         cp -rf  $CZERO_PATH/lib/lib_WINDOWS_AMD64/* $DECE_PATH/build/gecepkg/czero/lib/
-      elif [ $os == "linux-amd64-v3" ];then
-        mv $BUILD_PATH/bin/bootnode-v3*  $BUILD_PATH/gecepkg/bin/bootnode
-        mv $BUILD_PATH/bin/gece-v3* $BUILD_PATH/gecepkg/bin/gece
+      elif [ $os == "linux-amd64" ];then
+#        mv $BUILD_PATH/bin/bootnode-v3*  $BUILD_PATH/gecepkg/bin/bootnode
+        mv $BUILD_PATH/bin/gece-linux* $BUILD_PATH/gecepkg/bin/gece
         cp -rf  $CZERO_PATH/lib/lib_LINUX_AMD64_V3/* $DECE_PATH/build/gecepkg/czero/lib/
-      elif [ $os == "linux-amd64-v4" ];then
-#        mv $BUILD_PATH/bin/bootnode-v4*  $BUILD_PATH/gecepkg/bin/bootnode
-        mv $BUILD_PATH/bin/gece-v4* $BUILD_PATH/gecepkg/bin/gece
-        cp -rf  $CZERO_PATH/lib/lib_LINUX_AMD64_V4/* $DECE_PATH/build/gecepkg/czero/lib/
       else
         mv $BUILD_PATH/bin/gece-darwin* $BUILD_PATH/gecepkg/bin/gece
         cp -rf  $CZERO_PATH/lib/lib_DARWIN_AMD64/* $DECE_PATH/build/gecepkg/czero/lib/

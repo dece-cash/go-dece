@@ -7,7 +7,6 @@ import (
 	_ "github.com/dece-cash/go-dece/czero/lib/lib"
 	_ "github.com/dece-cash/go-dece/czero/lib/lib_DARWIN_AMD64"
 	_ "github.com/dece-cash/go-dece/czero/lib/lib_LINUX_AMD64_V3"
-	_ "github.com/dece-cash/go-dece/czero/lib/lib_LINUX_AMD64_V4"
 	_ "github.com/dece-cash/go-dece/czero/lib/lib_WINDOWS_AMD64"
 	_ "github.com/dece-cash/go-dece/czero/lib/szk_include"
 )

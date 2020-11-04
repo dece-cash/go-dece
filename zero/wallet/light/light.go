@@ -126,12 +126,12 @@ func (self *LightNode) fetchBlockInfo() {
 			txHash := common.Hash{}
 			copy(txHash[:], out.State.TxHash[:])
 
-			if teamReward == txHash {
-				continue
-			}
+			//if teamReward == txHash {
+			//	continue
+			//}
 
 			var txInfo TxInfo
-			if !(powReward == txHash || posReward == txHash || posMiner == txHash) {
+			if !(powReward == txHash || posReward == txHash || posMiner == txHash || teamReward == txHash) {
 				// fmt.Println("hex hash::", hexutil.Encode(txHash[:]), out.State.Num)
 				txReceipt, _, _, _ := rawdb.ReadReceipt(self.bcDB, txHash)
 				tx, _, _, _ := rawdb.ReadTransaction(self.bcDB, txHash)

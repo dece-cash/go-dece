@@ -17,6 +17,7 @@
 package miner
 
 import (
+	"bytes"
 	"fmt"
 	"math/big"
 	"sync"
@@ -35,10 +36,10 @@ import (
 	"github.com/dece-cash/go-dece/core/state"
 	"github.com/dece-cash/go-dece/core/types"
 	"github.com/dece-cash/go-dece/core/vm"
+	"github.com/dece-cash/go-dece/decedb"
 	"github.com/dece-cash/go-dece/event"
 	"github.com/dece-cash/go-dece/log"
 	"github.com/dece-cash/go-dece/params"
-	"github.com/dece-cash/go-dece/decedb"
 )
 
 const (
@@ -306,8 +307,11 @@ func (self *worker) update() {
 				self.currentMu.Lock()
 				txset := types.NewTransactionsByPrice(ev.Txs)
 				addr := common.Address{}
-				pkr := self.coinbase.GetPkr(nil)
-				addr.SetBytes(pkr[:])
+				if !bytes.Equal(addr[:64],self.coinbase.Address[:]) {
+					pkr := self.coinbase.GetPkr(nil)
+					addr.SetBytes(pkr[:])
+				}
+
 
 				self.current.commitTransactions(self.mux, txset, self.chain, addr)
 				self.updateSnapshot()
