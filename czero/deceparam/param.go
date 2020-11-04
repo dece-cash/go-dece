@@ -1,11 +1,18 @@
 package deceparam
 
-
 func SIP1() uint64 {
 	if is_dev {
 		return 0
 	} else {
 		return uint64(140000) // for miner rewards
+	}
+}
+
+func SIP2() uint64 {
+	if is_dev {
+		return 0
+	} else {
+		return uint64(200800) // for miner rewards
 	}
 }
 

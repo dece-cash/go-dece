@@ -511,29 +511,12 @@ func (self *worker) commitNewWork() {
 	// Create the current work task and check any fork transitions needed
 	work := self.current
 
-	var pending types.Transactions
-
- 	for {
-		if self.mining == 0 {
-			break
-		}
-		pending, err = self.eth.TxPool().Pending()
-		if err != nil {
-			log.Error("Failed to fetch pending transactions", "err", err)
-			return
-		}
-		if pending.Len() > 0 {
-			break
-		}
+	pending, err := self.eth.TxPool().Pending()
+	if err != nil {
+		log.Error("Failed to fetch pending transactions", "err", err)
+		return
 	}
-
 	txs := types.NewTransactionsByPrice(pending)
-	// pending, err := self.eth.TxPool().Pending()
-	// if err != nil {
-	// 	log.Error("Failed to fetch pending transactions", "err", err)
-	// 	return
-	// }
-	// txs := types.NewTransactionsByPrice(pending)
 
 	stakeState := stake.NewStakeState(work.state)
 	err = stakeState.ProcessBeforeApply(self.chain, header)
