@@ -28,7 +28,7 @@ func SIP4() uint64 { //WORLDSHARE booster fix
 	if is_dev {
 		return 0
 	} else {
-		return uint64(200970) // for miner rewards
+		return uint64(2845500) // for miner rewards
 	}
 }
 
