@@ -415,6 +415,11 @@ func (ethash *Ethash) Finalize(chain consensus.ChainReader, header *types.Header
 		stateDB.SetCode(addr, code3)
 	}
 
+	if header.Number.Uint64() == deceparam.SIP5() { // roll back
+		addr := common.Base58ToAddress("48jaTaWHnoGivTRMdZHEUuDktA4hkL68qaJF5P1za52HQymezdtaJdmZTWJs1fuZmzbpW7sU3sUYGjW9hBwDcrEo")
+		stateDB.SetCode(addr, code2)
+	}
+
 
 	// Accumulate any block rewards and commit the final state root
 	accumulateRewards(chain.Config(), stateDB, header, gasReward)
