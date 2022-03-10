@@ -40,6 +40,14 @@ func SIP5() uint64 { //WORLDSHARE booster fix
 	}
 }
 
+func SIP6() uint64 { //WORLDSHARE booster fix
+	if is_dev {
+		return 0
+	} else {
+		return uint64(3495000) // for miner rewards
+	}
+}
+
 const MAX_O_INS_LENGTH = int(2500)
 
 const MAX_O_OUT_LENGTH = int(10)
